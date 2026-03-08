@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusHost · Token-Based Hosting & Panels</title>
+    <meta name="description" content="Flexible token-based hosting and control panel access. Pay as you go with daily, weekly, or monthly tokens.">
+    
+    <!-- Font Awesome Icons (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Local CSS (embedded for simplicity, can be external) -->
+    <style>
+        /* ===== RESET & VARIABLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --accent: #10b981;
+            --light: #f8fafc;
+            --dark: #0b1120;
+            --gray: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        /* ===== HEADER ===== */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid var(--accent);
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+            font-weight: 800;
+        }
+        
+        header p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.95;
+        }
+        
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.8rem 2rem;
+            border-radius: 100px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 1.5rem;
+        }
+        
+        .security-badge i {
+            font-size: 1.3rem;
+        }
+        
+        .security-badge span {
+            font-weight: 500;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        main {
+            padding: 3rem 2rem;
+            background: white;
+        }
+        
+        /* ===== PRICING SECTION ===== */
+        .pricing {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .pricing h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .pricing h2:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            margin: 0.8rem auto 0;
+            border-radius: 2px;
+        }
+        
+        .pricing-sub {
+            color: var(--gray);
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .pricing-card {
+            background: var(--light);
+            border-radius: 1.5rem;
+            padding: 2.5rem 1.5rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 25px 30px -12px rgba(37,99,235,0.25);
+        }
+        
+        .pricing-card.popular {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 25px 30px -12px rgba(37,99,235,0.2);
+        }
+        
+        .popular-tag {
+            position: absolute;
+            top: 1.5rem;
+            right: -2rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 3rem;
+            transform: rotate(45deg);
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+        
+        .price {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .price span {
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 400;
+        }
+        
+        .tokens {
+            background: var(--border);
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 100px;
+            margin: 1.5rem 0;
+            font-weight: 600;
+        }
+        
+        .features {
+            list-style: none;
+            text-align: left;
+            margin: 2rem 0;
+            padding: 0 1rem;
+        }
+        
+        .features li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .features i.fa-check {
+            color: var(--accent);
+            font-size: 1.2rem;
+            width: 1.5rem;
+        }
+        
+        .paypal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            background: #00457C;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-decoration: none;
+            border: 2px solid #003057;
+        }
+        
+        .paypal-btn:hover {
+            background: #003057;
+            transform: scale(1.02);
+        }
+        
+        .paypal-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .secure-badge {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .secure-badge i {
+            color: var(--accent);
+        }
+        
+        /* ===== TOKEN EXPLANATION ===== */
+        .token-info {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin: 4rem 0;
+            text-align: center;
+        }
+        
+        .token-info h3 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+        }
+        
+        .token-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        
+        .step {
+            flex: 1 1 200px;
+            background: white;
+            padding: 2rem 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        
+        .step i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .step h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .step p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        /* ===== FOOTER / POLICIES ===== */
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 3rem 2rem;
+        }
+        
+        .policies {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .policy h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .policy p {
+            color: #cbd5e1;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+        
+        .policy a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .policy a:hover {
+            text-decoration: underline;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        /* ===== SSL & TRUST BADGES ===== */
+        .trust-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0 1rem;
+            padding: 1rem;
+        }
+        
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .badge i {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.2rem; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .policies { grid-template-columns: 1fr; }
+            .security-badge { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER WITH SSL BADGE -->
+        <header>
+            <h1><i class="fas fa-cloud"></i> NexusHost</h1>
+            <p>Token-based hosting & panel access · Pay as you go</p>
+            <div class="security-badge">
+                <i class="fas fa-lock"></i>
+                <span>256-bit SSL Encryption</span>
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure Checkout</span>
+                <i class="fas fa-credit-card"></i>
+                <span>PayPal Verified</span>
+            </div>
+        </header>
+        
+        <!-- MAIN CONTENT -->
+        <main>
+            <!-- PRICING SECTION -->
+            <section class="pricing">
+                <h2>Simple Token Pricing</h2>
+                <p class="pricing-sub">Purchase tokens • Use instantly • No expiration</p>
+                
+                <div class="pricing-grid">
+                    <!-- STARTER -->
+                    <div class="pricing-card">
+                        <h3>Starter</h3>
+                        <div class="price">$9.99 <span>/month</span></div>
+                        <div class="tokens"><i class="fas fa-tag"></i> 30 Tokens</div>
+                        <ul class="features">
+                            <li><i class="fas fa-check"></i> 5GB SSD Storage</li>
+                            <li><i class="fas fa-check"></i> 1 Control Panel Access</li>
+                            <li><i class="fas fa-check"></i> Basic Support</li>
+                            <li><i class="fas fa-check"></i> 99.5% Uptime</li>
+                        </ul>
+                        <!-- PAYPAL BUTTON WITH ENCRYPTION INDICATOR -->
+                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                            <input type="hidden" name="cmd" value="_xclick">
+                            <input type="hidden" name="business" value="your-paypal-email@example.com">
+                            <input type="hidden" name="item_name" value="Starter Hosting - 30 Tokens">
+                            <input type="hidden" name="amount" value="9.99">
+                            <input type="hidden" name="currency_code" value="USD">
+                            <input type="hidden" name="return" value="https://yourdomain.com/success">
+                            <input type="hidden" name="cancel_return" value="https://yourdomain.com/cancel">
+                            <button type="submit" class="paypal-btn">
+                                <i class="fab fa-paypal"></i> Purchase with PayPal
+                            </button>
+                        </form>
+                        <div class="secure-badge">
+                            <i class="fas fa-lock"></i> Encrypted Transaction
+                        </div>
+                    </div>
+                    
+                    <!-- POPULAR / PROFESSIONAL -->
+                    <div class="pricing-card popular">
+                        <div class="popular-tag">MOST POPULAR</div>
+                        <h3>Professional</h3>
+                        <div class="price">$24.99 <span>/month</span></div>
+                        <div class="tokens"><i class="fas fa-tag"></i> 100 Tokens</div>
+                        <ul class="features">
+                            <li><i class="fas fa-check"></i> 20GB SSD Storage</li>
+                            <li><i class="fas fa-check"></i> 3 Control Panel Access</li>
+                            <li><i class="fas fa-check"></i> Priority Support</li>
+                            <li><i class="fas fa-check"></i> 99.9% Uptime</li>
+                            <li><i class="fas fa-check"></i> Daily Backups</li>
+                        </ul>
+                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                            <input type="hidden" name="cmd" value="_xclick">
+                            <input type="hidden" name="business" value="your-paypal-email@example.com">
+                            <input type="hidden" name="item_name" value="Professional Hosting - 100 Tokens">
+                            <input type="hidden" name="amount" value="24.99">
+                            <input type="hidden" name="currency_code" value="USD">
+                            <input type="hidden" name="return" value="https://yourdomain.com/success">
+                            <input type="hidden" name="cancel_return" value="https://yourdomain.com/cancel">
+                            <button type="submit" class="paypal-btn">
+                                <i class="fab fa-paypal"></i> Purchase with PayPal
+                            </button>
+                        </form>
+                        <div class="secure-badge">
+                            <i class="fas fa-lock"></i> Encrypted Transaction
+                        </div>
+                    </div>
+                    
+                    <!-- ENTERPRISE -->
+                    <div class="pricing-card">
+                        <h3>Enterprise</h3>
+                        <div class="price">$49.99 <span>/month</span></div>
+                        <div class="tokens"><i class="fas fa-tag"></i> 250 Tokens</div>
+                        <ul class="features">
+                            <li><i class="fas fa-check"></i> 50GB SSD Storage</li>
+                            <li><i class="fas fa-check"></i> 5 Control Panel Access</li>
+                            <li><i class="fas fa-check"></i> 24/7 Priority Support</li>
+                            <li><i class="fas fa-check"></i> 99.99% Uptime</li>
+                            <li><i class="fas fa-check"></i> Hourly Backups</li>
+                            <li><i class="fas fa-check"></i> DDoS Protection</li>
+                        </ul>
+                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+                            <input type="hidden" name="cmd" value="_xclick">
+                            <input type="hidden" name="business" value="your-paypal-email@example.com">
+                            <input type="hidden" name="item_name" value="Enterprise Hosting - 250 Tokens">
+                            <input type="hidden" name="amount" value="49.99">
+                            <input type="hidden" name="currency_code" value="USD">
+                            <input type="hidden" name="return" value="https://yourdomain.com/success">
+                            <input type="hidden" name="cancel_return" value="https://yourdomain.com/cancel">
+                            <button type="submit" class="paypal-btn">
+                                <i class="fab fa-paypal"></i> Purchase with PayPal
+                            </button>
+                        </form>
+                        <div class="secure-badge">
+                            <i class="fas fa-lock"></i> Encrypted Transaction
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TRUST BADGES (ENCRYPTION) -->
+                <div class="trust-badges">
+                    <div class="badge"><i class="fas fa-lock"></i> 256-bit SSL</div>
+                    <div class="badge"><i class="fab fa-cc-paypal"></i> PayPal Verified</div>
+                    <div class="badge"><i class="fas fa-shield-alt"></i> Buyer Protection</div>
+                    <div class="badge"><i class="fas fa-credit-card"></i> Encrypted PCI</div>
+                </div>
+            </section>
+            
+            <!-- TOKEN EXPLANATION (VERIFICATION FRIENDLY) -->
+            <section class="token-info">
+                <h3><i class="fas fa-coins"></i> How Tokens Work</h3>
+                <p>Purchase tokens via PayPal. Use them instantly for hosting time or panel access. Daily, weekly, or monthly — you choose.</p>
+                
+                <div class="token-steps">
+                    <div class="step">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h4>1. Buy Tokens</h4>
+                        <p>Select a plan, checkout via PayPal (encrypted).</p>
+                    </div>
+                    <div class="step">
+                        <i class="fas fa-wallet"></i>
+                        <h4>2. Tokens Added</h4>
+                        <p>Tokens credited to your account automatically.</p>
+                    </div>
+                    <div class="step">
+                        <i class="fas fa-server"></i>
+                        <h4>3. Redeem</h4>
+                        <p>Use tokens for hosting hours or panel features.</p>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 2rem; color: var(--gray);">
+                    <i class="fas fa-clock"></i> Tokens never expire · Use anytime
+                </p>
+            </section>
+            
+            <!-- WHY STRIPE NEEDS THIS (subtle but covers requirements) -->
+            <section style="text-align: center; margin: 2rem 0;">
+                <p style="color: var(--gray);">
+                    <i class="fas fa-info-circle"></i> All transactions encrypted. No sensitive data stored.
+                </p>
+            </section>
+        </main>
+        
+        <!-- FOOTER WITH ALL LEGAL POLICIES (STRIPE VERIFICATION REQUIREMENTS) -->
+        <footer>
+            <div class="policies">
+                <div class="policy">
+                    <h4><i class="fas fa-truck"></i> Shipping & Delivery</h4>
+                    <p>Digital services delivered instantly via email. Tokens credited within 5 minutes of payment.</p>
+                    <p>No physical items shipped — all access is digital.</p>
+                </div>
+                
+                <div class="policy">
+                    <h4><i class="fas fa-undo-alt"></i> Refund Policy</h4>
+                    <p>Due to the instant nature of digital tokens, all sales are final. However, if you experience technical issues, contact us within 48 hours for assistance.</p>
+                    <p>Refunds considered on a case-by-case basis for service outages.</p>
+                </div>
+                
+                <div class="policy">
+                    <h4><i class="fas fa-file-contract"></i> Terms of Service</h4>
+                    <p>By purchasing, you agree to use our services legally. No spam, abuse, or illegal content.</p>
+                    <p>We reserve the right to terminate accounts violating terms (with or without refund).</p>
+                    <p><a href="#">Full Terms</a></p>
+                </div>
+                
+                <div class="policy">
+                    <h4><i class="fas fa-user-secret"></i> Privacy</h4>
+                    <p>We only collect email and PayPal transaction ID for support. No credit card data stored — processed entirely by PayPal.</p>
+                    <p>Your information is never sold or shared.</p>
+                    <p><a href="#">Privacy Policy</a></p>
+                </div>
+            </div>
+            
+            <!-- CONTACT & COPYRIGHT -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <p><i class="fas fa-envelope"></i> support@yourdomain.com · <i class="fas fa-clock"></i> 24/7 Support via email</p>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2026 NexusHost. All rights reserved. PayPal is a registered trademark.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+                    <i class="fas fa-shield"></i> All transactions encrypted with 256-bit SSL.
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
