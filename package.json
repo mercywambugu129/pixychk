@@ -1,0 +1,17 @@
+{
+  "name": "nexushost-website",
+  "version": "1.0.0",
+  "description": "Token-based hosting service website",
+  "main": "public/index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site, no build required'",
+    "start": "vercel start"
+  },
+  "keywords": ["hosting", "tokens", "website"],
+  "author": "NexusHost",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
